@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.tatsuhiro.taskapp.MainActivity">
+
+    <item
+        android:id="@+id/searchView"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="Search"
+        android:actionViewClass="android.widget.SearchView"/>
+
+</menu>
