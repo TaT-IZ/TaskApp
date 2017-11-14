@@ -2,12 +2,17 @@ package com.example.tatsuhiro.taskapp;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -41,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);//キーボード表示
 
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,6 +54,19 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+            @Override
+            public boolean onCreateOptionsMenu(Menu menu) {
+                getMenuInflater().inflate(R.menu.menu_main, menu);
+
+                MenuItem searchItem = menu.findItem(R.id.search_menu_search_view);
+                SearchView searchView =
+                        (SearchView) MenuItemCompat.getActionView(searchItem);
+
+                // Configure the search info and add any event listeners...
+
+                return super.onCreateOptionsMenu(menu);
+            }
 
         // Realmの設定
         mRealm = Realm.getDefaultInstance();

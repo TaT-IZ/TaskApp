@@ -19,18 +19,19 @@
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.intent.action.SEARCH" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data android:name="android.app.searchable"
+                   android:resource="@xml/searchable"/>
         <activity android:name=".InputActivity"
             android:label="タスク"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
             >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.tatsuhiro.taskapp.MainActivity"/>
+            <meta-data android:name="android.app.searchable"
+                       android:resource="@xml/searchable"/>
         </activity>
 
         <receiver android:name=".TaskAlarmReceiver"/>
