@@ -2,12 +2,12 @@ package com.example.tatsuhiro.taskapp;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView mListView;
     private TaskAdapter mTaskAdapter;
+    private String searchWord;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,18 +57,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-            @Override
-            public boolean onCreateOptionsMenu(Menu menu) {
-                getMenuInflater().inflate(R.menu.menu_main, menu);
-
-                MenuItem searchItem = menu.findItem(R.id.search_menu_search_view);
-                SearchView searchView =
-                        (SearchView) MenuItemCompat.getActionView(searchItem);
-
-                // Configure the search info and add any event listeners...
-
-                return super.onCreateOptionsMenu(menu);
-            }
 
         // Realmの設定
         mRealm = Realm.getDefaultInstance();
@@ -103,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
                 builder.setTitle("Delete?");
-                builder.setMessage(task.getTitle() + " " + " Are you sure to delete this schedule?" );
+                builder.setMessage(task.getTitle() + " " + " Are you sure to delete this schedule?");
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 
                     @Override
@@ -152,6 +142,81 @@ public class MainActivity extends AppCompatActivity {
         mTaskAdapter.notifyDataSetChanged();
     }
 
+    private void reloadListView(String search) {
+        // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
+        RealmResults<Task> taskRealmResults = mRealm.where(Task.class).equalTo("category", search).findAllSorted("date", Sort.DESCENDING);
+        // 上記の結果を、TaskList としてセットする
+        mTaskAdapter.setTaskList(mRealm.copyFromRealm(taskRealmResults));
+        // TaskのListView用のアダプタに渡す
+        mListView.setAdapter(mTaskAdapter);
+        // 表示を更新するために、アダプターにデータが変更されたことを知らせる
+        mTaskAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.search_menu_search_view);
+        searchView =
+                (SearchView) MenuItemCompat.getActionView(searchItem);
+
+        // 虫眼鏡アイコンを最初表示するかの設定
+        searchView.setIconifiedByDefault(true);
+
+        // Submitボタンを表示するかどうか
+        searchView.setSubmitButtonEnabled(false);
+
+        searchWord = "";
+
+        if (!this.searchWord.equals("")) {
+            // TextView.setTextみたいなもの
+            searchView.setQuery(this.searchWord, false);
+        } else {
+            String queryHint = "Category Sort";
+            // placeholderみたいなもの
+            searchView.setQueryHint(queryHint);
+        }
+        searchView.setOnQueryTextListener(this.onQueryTextListener);
+        return true;
+    }
+
+    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String searchWord) {
+            // SubmitボタンorEnterKeyを押されたら呼び出されるメソッド
+            return setSearchWord(searchWord);
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            // 入力される度に呼び出される
+            return false;
+        }
+    };
+
+    private boolean setSearchWord(String searchWord) {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(searchWord);
+        actionBar.setDisplayShowTitleEnabled(true);
+        if (searchWord != null && !searchWord.equals("")) {
+            // searchWordがあることを確認
+            this.searchWord = searchWord;
+            reloadListView(this.searchWord);
+
+        }
+        else  {
+            reloadListView();
+        }
+
+        // 虫眼鏡アイコンを隠す
+        this.searchView.setIconified(false);
+        // SearchViewを隠す
+        this.searchView.onActionViewCollapsed();
+        // Focusを外す
+        this.searchView.clearFocus();
+        return false;
+}
     @Override
     protected void onDestroy() {
 
